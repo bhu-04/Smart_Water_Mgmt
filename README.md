@@ -1,70 +1,82 @@
-**Smart Water Management in VIT Chennai using Causal Reinforcement Learning**
+# Smart Water Management in VIT Chennai using Causal Reinforcement Learning
 
-**Project Overview**
+## 📌 Project Overview
+This project implements a **Smart Water Management System** for the **VIT Chennai campus** using a **Causal Reinforcement Learning (CRL)** approach.  
 
-This project implements a smart water management system for the VIT Chennai campus using a Causal Reinforcement Learning (CRL) approach. The goal is to optimize water distribution, minimize wastage, and provide actionable insights for campus administrators. By analyzing historical water consumption data and simulating the effects of different interventions (like pipe repairs or water reallocation), the system learns an optimal policy for managing water resources efficiently.
+The goal is to:
+- Optimize water distribution  
+- Minimize wastage  
+- Provide actionable insights for campus administrators  
 
-This project moves beyond traditional prediction models by incorporating causality, allowing the RL agent to understand the real-world impact of its decisions.
+Unlike traditional prediction models, this system **incorporates causality**, allowing the RL agent to understand the real-world impact of its decisions. It leverages historical water consumption data and simulates interventions (e.g., pipe repairs, water reallocation) to learn an **optimal water management policy**.
 
-**Project Structure**
+---
 
+## 📂 Project Structure
 The project is organized into the following Python scripts:
 
-_requirements.txt_: A list of all the Python libraries required to run the project.
+- **`requirements.txt`** → List of all required Python libraries.  
+- **`data_preprocessor.py`** → Cleans and prepares the raw dataset (`data/vit_chennai_water_dataset.csv`), handles missing values, corrects data types, and engineers features for the CRL model.  
+- **`crl_water_management_model.py`** → Defines the custom RL environment (states, actions, rewards) and implements the CRL agent that learns the optimal policy.  
+- **`main.py`** → Orchestrates the workflow:  
+  - Loads dataset  
+  - Preprocesses data  
+  - Trains CRL model  
+  - Simulates learned policy to evaluate performance  
 
-_data_preprocessor.py_: This script is responsible for cleaning and preparing the raw water consumption data (vit_chennai_water_dataset_noisy.csv). It handles missing values, corrects data types, and engineers relevant features for the CRL model.
+---
 
-_crl_water_management_model.py_: This is the core of the project. It defines the custom Reinforcement Learning environment for water management, including states, actions, and rewards. It also contains the implementation of the CRL agent which learns the optimal water management policy.
+## ⚙️ Getting Started
 
-_main.py_: The main script that orchestrates the entire workflow. It loads the dataset, preprocesses the data using data_preprocessor.py, initializes and trains the CRL model from crl_water_management_model.py, and simulates the learned policy to demonstrate its effectiveness.
+### ✅ Prerequisites
+- Python **3.8+**
+- `pip` for package management
 
-**Getting Started**
+### 🔧 Installation
+1. Clone the repository or download the project files.  
+2. Create and activate a virtual environment (recommended):  
+   ```bash
+   python -m venv venv
+   venv\Scripts\activate   # On Windows
+   source venv/bin/activate   # On Linux/Mac
+   ```
+3. Install dependencies:  
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-**Prerequisites**
+---
 
-Python 3.8 or higher
+## 🚀 How to Run the Project
+1. Ensure `vit_chennai_water_dataset.csv` is in the same directory as the scripts.  
+2. Run the main script:  
+   ```bash
+   python main.py
+   ```
+3. The script outputs **simulation results**, showing the performance of the trained CRL agent in managing water resources.
 
-pip for installing Python packages
+---
 
-**Installation**
+## 🧠 The Causal Reinforcement Learning Model
 
-Clone the repository or download the project files.
+### 🌍 Environment
+- **State**: Daily water usage, rainfall, temperature, humidity, pipe conditions, special events.  
+- **Action**: Repair pipes, reallocate water, issue conservation alerts, etc.  
+- **Reward**: Rewards efficient management (minimized wastage) and penalizes shortages or poor allocation.  
 
-Create and activate a virtual environment (recommended):
+### 🤖 Agent
+- Based on **Q-Learning**.  
+- Learns a **policy** to maximize cumulative rewards.  
+- Understands **causal effects** of interventions on water availability and consumption.  
 
-`python -m venv venv`
-`venv\Scripts\activate`
+---
 
-Install the required libraries:
+## 🔮 Future Work
+- Integration with **live data streams** for real-time monitoring.  
+- Development of a **dashboard** for administrators to visualize insights.  
+- Expanding the **action space** to support more complex interventions.  
 
-`pip install -r requirements.txt`
+---
 
-**How to Run the Project**
-
-Make sure the vit_chennai_water_dataset_noisy.csv file is in the same directory as the Python scripts.
-
-Execute the main script:
-
-`python main.py`
-
-The script will output the results of the simulation, showing the performance of the trained CRL agent in managing the campus's water resources.
-
-**The Causal Reinforcement Learning Model**
-
-**Environment**
-
-State: The state is a representation of the current water situation on campus. It includes features like daily water usage, rainfall, temperature, humidity, pipe conditions, and special events.
-
-Action: The agent can take several actions to manage water, such as dispatching a repair team, reallocating water between facilities, or issuing conservation alerts.
-
-Reward: The reward function is designed to encourage efficient water management. The agent is rewarded for minimizing water wastage and penalized for shortages or inefficient allocation.
-
-Agent
-We use a Q-learning based agent that learns a policy to maximize the cumulative reward over time. By interacting with the simulated environment, the agent learns the causal effects of its actions on water consumption and availability.
-
-Potential for Future Work
-Integration with a live data stream for real-time water monitoring and management.
-
-Development of a dashboard for campus administrators to visualize data and interact with the system's recommendations.
-
-Expanding the action space of the agent to include more complex interventions.
+## 📜 License
+This project is for **research and educational purposes**. Please cite appropriately if used.  
