@@ -34,15 +34,20 @@ class WaterManagementEnv:
         """
         if self.current_step >= self.max_steps:
             # Episode is done
-            return None, 0, True
+            return self.state_space.iloc[self.current_step-1].values, 0, True # Return last state
 
         current_state_row = self.data.iloc[self.current_step]
         reward = self._calculate_reward(current_state_row, action)
 
         self.current_step += 1
-        next_state = self.state_space.iloc[self.current_step].values
-
+        
         done = self.current_step >= self.max_steps
+        if done:
+            next_state = self.state_space.iloc[self.current_step-1].values
+        else:
+            next_state = self.state_space.iloc[self.current_step].values
+
+
         return next_state, reward, done
 
     def _calculate_reward(self, state_row, action):
@@ -70,19 +75,13 @@ class WaterManagementEnv:
         elif action == 3 and state_row['water_stress_level'] <= 1:
              reward -=5
 
-
         return reward
 
 class QLearningAgent:
     """
     A Q-learning agent that learns an optimal policy for water management.
     """
-    def __init__(self, observation_space_dim, action_space_n, learning_rate=0.1, discount_factor=0.95, exploration_rate=1.0, exploration_decay_rate=0.995, min_exploration_rate=0.01):
-        # The Q-table now needs to handle continuous states by discretization
-        self.state_bins = [np.linspace(0, 500000, 10) for _ in range(observation_space_dim)] # Example bins
-        self.q_table = np.zeros([10] * observation_space_dim + [action_space_n])
-
-
+    def __init__(self, state_data, action_space_n, learning_rate=0.1, discount_factor=0.95, exploration_rate=1.0, exploration_decay_rate=0.995, min_exploration_rate=0.01):
         self.action_space_n = action_space_n
         self.lr = learning_rate
         self.gamma = discount_factor
@@ -90,22 +89,32 @@ class QLearningAgent:
         self.epsilon_decay = exploration_decay_rate
         self.epsilon_min = min_exploration_rate
 
+        # --- DYNAMIC DISCRETIZATION ---
+        # Create bins dynamically based on the data provided
+        self.state_bins = self._create_bins(state_data)
+        q_table_shape = [len(b) + 1 for b in self.state_bins] + [self.action_space_n]
+        self.q_table = np.zeros(q_table_shape)
+        print(f"Q-table created with shape: {self.q_table.shape}")
+
+    def _create_bins(self, data, num_bins=10):
+        """Creates bins for each feature based on its min and max values."""
+        bins = []
+        for col in data.columns:
+            # We subtract a small epsilon and add one to the max to ensure all values fall within the bins
+            col_min = data[col].min()
+            col_max = data[col].max()
+            if col_min == col_max: # Handle case where all values in a column are the same
+                 bins.append(np.array([col_min]))
+            else:
+                 bins.append(np.linspace(col_min, col_max, num_bins - 1))
+        return bins
+
+
     def _discretize_state(self, state):
         """Discretizes a continuous state into a tuple of bin indices."""
         binned_state = []
-        # Ensure state is a 1D array
-        state = np.atleast_1d(state)
-        # Check if the number of elements in state matches the number of bins
-        if len(state) != len(self.state_bins):
-            # This is a failsafe. You should debug why the state dimension is incorrect.
-            # For now, we'll pad or truncate. Padding is safer.
-            new_state = np.zeros(len(self.state_bins))
-            size = min(len(state), len(self.state_bins))
-            new_state[:size] = state[:size]
-            state = new_state
-
         for i, val in enumerate(state):
-             binned_state.append(np.digitize(val, self.state_bins[i]) - 1)
+             binned_state.append(np.digitize(val, self.state_bins[i]))
         return tuple(binned_state)
 
 
@@ -144,15 +153,15 @@ def train_agent(env, agent, episodes=1000):
         while not done:
             action = agent.choose_action(state)
             next_state, reward, done = env.step(action)
-            if not done:
-                agent.learn(state, action, reward, next_state)
-                state = next_state
-                episode_reward += reward
+            agent.learn(state, action, reward, next_state)
+            state = next_state
+            episode_reward += reward
 
         agent.update_exploration_rate()
         total_rewards.append(episode_reward)
         if (episode + 1) % 100 == 0:
-            print(f"Episode {episode + 1}/{episodes}, Total Reward: {episode_reward}")
+            print(f"Episode {episode + 1}/{episodes}, Total Reward: {episode_reward:.2f}")
 
     print("\nTraining complete.")
     return agent
+
