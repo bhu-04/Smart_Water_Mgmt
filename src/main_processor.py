@@ -15,7 +15,9 @@ def run_simulation(env, agent):
 
     step = 0
     while not done:
-        action = agent.choose_action(state) # Now uses the learned policy
+        # For simulation, we want to exploit the learned policy, so set epsilon to 0
+        agent.epsilon = 0
+        action = agent.choose_action(state) 
         actions_taken.append(action_map[action])
         next_state, reward, done = env.step(action)
         total_reward += reward
@@ -25,29 +27,28 @@ def run_simulation(env, agent):
             print(f"Simulation finished after {step} steps.")
             break
 
-    print(f"Total reward in simulation: {total_reward}")
-    print("\nActions taken during simulation:")
+    print(f"Total reward in simulation: {total_reward:.2f}")
+    print("\nActions taken during simulation (first 40 days):")
     # Print first 20 actions for brevity
-    for i, action in enumerate(actions_taken[:20]):
+    for i, action in enumerate(actions_taken[:40]):
         print(f"Day {i+1}: {action}")
 
 
 if __name__ == '__main__':
-    # 1. Preprocess the data
-    data_filepath = 'vit_chennai_water_dataset_noisy.csv'
+    # 1. Preprocess the data and select features for the RL state
+    data_filepath = 'data/vit_chennai_water_dataset.csv'
     preprocessed_df = preprocess_data(data_filepath)
 
     # 2. Initialize the environment
     env = WaterManagementEnv(preprocessed_df)
 
     # 3. Initialize the agent
+    # We pass the state data (without the target) to the agent for dynamic binning
     agent = QLearningAgent(
-        observation_space_dim=env.observation_space_dim,
+        state_data=env.state_space,
         action_space_n=env.action_space_n
     )
-    # Set a lower exploration rate for the final simulation
-    agent.epsilon = 0 # No exploration, just exploitation
-
+    
     # 4. Train the agent
     print("\n--- Training the Causal RL Agent ---")
     trained_agent = train_agent(env, agent, episodes=1000)
@@ -55,3 +56,4 @@ if __name__ == '__main__':
 
     # 5. Run a simulation with the trained agent
     run_simulation(env, trained_agent)
+
