@@ -17,8 +17,8 @@ The project is organized into the following Python scripts:
 
 - **`requirements.txt`** → List of all required Python libraries.  
 - **`data_preprocessor.py`** → Cleans and prepares the raw dataset (`data/vit_chennai_water_dataset.csv`), handles missing values, corrects data types, and engineers features for the CRL model.  
-- **`crl_water_management_model.py`** → Defines the custom RL environment (states, actions, rewards) and implements the CRL agent that learns the optimal policy.  
-- **`main.py`** → Orchestrates the workflow:  
+- **`crl_model.py`** → Defines the custom RL environment (states, actions, rewards) and implements the CRL agent that learns the optimal policy.  
+- **`main_processor.py`** → Orchestrates the workflow:  
   - Loads dataset  
   - Preprocesses data  
   - Trains CRL model  
